@@ -21,6 +21,7 @@ const mechanicalSchema = new mongoose.Schema({
     },
     expertise: {
         type: [String],
+        enum: ['car', 'bike', 'both'],
         required: true
     },
     photoUri: {
@@ -29,5 +30,5 @@ const mechanicalSchema = new mongoose.Schema({
 
 },{timestamps: true});
 
-const mechanicalModel = mongoose.model('Mechanical', mechanicalSchema);
-export default mechanicalModel;
+const Mechanical = mongoose.model('Mechanical', mechanicalSchema);
+export default Mechanical;

@@ -1,12 +1,13 @@
 import dotenv from "dotenv";
-dotenv.config();
+
 import connectDB from "./src/db/dbConnection.js";
 import express from "express";
-
+import cookieParser from "cookie-parser";
 
 const app = express();
+dotenv.config();
 app.use(express.json());
-
+app.use(cookieParser());
 const startServer = async () => {
   await connectDB(); 
   app.listen(process.env.PORT, () => {
@@ -15,3 +16,8 @@ const startServer = async () => {
 };
 
 startServer();
+
+// routes imports
+import userrouters from "./src/routes/user.Routes.js";
+// user routes
+app.use("/api/v1/users", userrouters);

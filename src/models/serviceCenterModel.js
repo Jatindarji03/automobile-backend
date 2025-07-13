@@ -41,5 +41,5 @@ const serviceCenterSchema = new mongoose.Schema({
 },{timestamps: true});
 
 
-const serviceCenterModel = mongoose.model('ServiceCenter', serviceCenterSchema);
-export default serviceCenterModel;
+const ServiceCenter = mongoose.model('ServiceCenter', serviceCenterSchema);
+export default ServiceCenter;
