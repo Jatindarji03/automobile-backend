@@ -8,6 +8,8 @@ const app = express();
 dotenv.config();
 app.use(express.json());
 app.use(cookieParser());
+
+
 const startServer = async () => {
   await connectDB(); 
   app.listen(process.env.PORT, () => {
@@ -18,6 +20,11 @@ const startServer = async () => {
 startServer();
 
 // routes imports
-import userrouters from "./src/routes/user.Routes.js";
+import userRouters from "./src/routes/user.Routes.js";
+import vehicleRouters from "./src/routes/vehicle.Routes.js";
 // user routes
-app.use("/api/v1/users", userrouters);
+app.use("/api/v1/users", userRouters);
+
+// vehicle routes
+app.use("/api/v1/vehicles", vehicleRouters);
+
