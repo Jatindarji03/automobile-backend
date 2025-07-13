@@ -5,6 +5,8 @@ import User from "../models/userModel.js";
 
 const generateToken = (user) => {
   const SECRET = process.env.JWT_SECRET;
+  console.log(process.env.JWT_SECRET);
+
   return jwt.sign(
     { id: user._id, email: user.email, role: user.role },
     SECRET,
@@ -31,12 +33,27 @@ const registerUser = async (req, res) => {
       role
     });
     await newUser.save();
+    
     const token = generateToken(newUser);
-    res.status(201).cookie({ authtoken: token }).json({
-      data: newUser,
-      token,
-      message: "User registered successfully"
-    });
+    if(!token) {
+      return res.status(500).json({ error: "Token generation failed" });
+    }
+    // res.status(201).cookie(authtoken: token ).json({
+    //   data: newUser,
+    //   token,
+    //   message: "User registered successfully"
+    // });
+
+    const options = {
+      expires: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000), // 3 days
+      httpOnly: true,
+      secure: false,
+      sameSite: "strict" // Adjust as needed
+    };
+    
+    res.cookie("authtoken", token, options).status(201).json({
+      data: newUser, message: "User registered successfully"
+    })
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

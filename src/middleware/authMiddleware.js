@@ -13,7 +13,7 @@ const verifyToken = (token) => {
 const AuthMiddleware = (req, res, next) => {
       try {
   const token =req.cookies.authtoken || req.headers.authorization?.split(" ")[1];
-  console.log("Token:", token);
+  //console.log("Token:", token);
   
   if (!token) {
     return res.status(401).json({ error: "Unauthorized access" });
