@@ -31,13 +31,24 @@ const registerUser = async (req, res) => {
       role
     });
     await newUser.save();
-    const token = generateToken(newUser);
-    res.status(201).cookie({ authtoken: token }).json({
-      data: newUser,
-      token,
-      message: "User registered successfully"
+    
+   
+    
+    const options = {
+      expires: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000), // 3 days
+      httpOnly: true,
+      secure: false,
+      sameSite: "strict" // Adjust as needed
+    };
+    const token = generateToken(user);
+     if(!token) {
+      return res.status(500).json({ error: "Token generation failed" });
+    }
+    res.cookie("authtoken", token, options).status(200).json({
+      data: newUser, message: "User registered successfully"
     });
   } catch (error) {
+    console.log(error);
     res.status(500).json({ error: error.message });
   }
 };
