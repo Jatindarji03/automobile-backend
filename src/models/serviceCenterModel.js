@@ -1,45 +1,85 @@
 import mongoose from "mongoose";
-
-const serviceCenterSchema = new mongoose.Schema({
-    name:{
-        type: String,
-        required: true
+import mongooseAggregatePaginate from "mongoose-aggregate-paginate-v2";
+const serviceCenterSchema = new mongoose.Schema(
+  {
+    name: {
+      type: String,
+      required: true,
     },
+
     location: {
-        type:[Number],
+      type: {
+        type: String,
+        enum: ["Point"],
+        default: "Point",
+      },
+      coordinates: {
+        type: [Number], // [longitude, latitude]
         required: true,
+      },
+    },
+    owner: {
+      type: String,
+      required: true,
+    },
 
-    },
-    ownerName:{
-        type: String,
-        required: true
-    },
-    email:{
-        type: String,
-        required: true,
-        unique: true
-    },
-    role:{
-        type: String,
-        default: 'service-provider',
-        enum: ['user', 'service-provider']
-    },
-    password:{
-        type: String,
-        required: true
-    },
-    photoUri:{
-        type:String,
-    },
-    availableServices:{
-        type:[String]
-    },
-    rating:{
-        type: Number
-    }
+    // owner: {
+    //   type: mongoose.Schema.Types.ObjectId,
+    //   ref: "User",
+    //   required: true,
+    // },
 
-},{timestamps: true});
+    email: {
+      type: String,
+      required: true,
+      unique: true,
+    },
 
+    services: {
+      type: String,
+      enum: ["mechanic", "service-provider", "both"],
+      default: "service-provider",
+    },
 
-const ServiceCenter = mongoose.model('ServiceCenter', serviceCenterSchema);
+    mechanics: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+        required: false, // optional, can be added later
+      },
+    ],
+
+    photoUri: {
+      type: String,
+    },
+
+    availableServices:
+    [
+      {
+        type:mongoose.Schema.Types.ObjectId,
+        ref: 'Mechanical',
+      }
+    ],
+
+    rating: {
+      type: Number,
+      default: 0,
+    },
+
+    password: {
+      type: String, // only if needed for login (not recommended here)
+      required:true
+    },
+  },
+  {
+    timestamps: true,
+  }
+);
+
+mongooseAggregatePaginate(serviceCenterSchema);
+// Index for geospatial queries
+serviceCenterSchema.index({ location: "2dsphere" });
+
+const ServiceCenter = mongoose.model("ServiceCenter", serviceCenterSchema);
+
 export default ServiceCenter;

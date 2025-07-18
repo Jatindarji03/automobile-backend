@@ -17,12 +17,16 @@ const mechanicalSchema = new mongoose.Schema({
     serviceCenterId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'ServiceCenter',
-        required: true
+        required: false
     },
     expertise: {
         type: [String],
         enum: ['car', 'bike', 'both'],
         required: true
+    },
+    isavailable: {
+        type: Boolean,
+        default: true
     },
     photoUri: {
         type: String,

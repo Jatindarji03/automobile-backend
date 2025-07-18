@@ -22,9 +22,12 @@ startServer();
 // routes imports
 import userRouters from "./src/routes/user.Routes.js";
 import vehicleRouters from "./src/routes/vehicle.Routes.js";
+import serviceCenterRouters from "./src/routes/serviceCenter.routes.js";
 // user routes
 app.use("/api/v1/users", userRouters);
 
 // vehicle routes
 app.use("/api/v1/vehicles", vehicleRouters);
 
+// service center routes
+app.use("/api/v1/service-centers", serviceCenterRouters);
