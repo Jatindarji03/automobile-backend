@@ -75,29 +75,41 @@ const deleteVehicle = async (req, res) => {
 const updateVehicle = async (req, res) => {
     try {
         const vehicleId = req.params.id;
-        const { vechicleType, model, registrationNumber, fuelType, yearOfManufacture } = req.body;
-        if (!vehicleId || !vechicleType || !model || !registrationNumber || !fuelType || !yearOfManufacture) {
-            return res.status(400).json({ error: "All fields are required" });
+        const { vehicleType, model, registrationNumber, fuelType, yearOfManufacture } = req.body;
+        const updateFields={};
+
+        if(vehicleType) updateFields.vehicleType = vehicleType;
+        if(model) updateFields.model = model;
+        if(fuelType) updateFields.fuelType=fuelType;
+        if(registrationNumber) updateFields.registrationNumber = registrationNumber;
+        if(yearOfManufacture) updateFields.yearOfManufacture = yearOfManufacture;
+
+        if (!vehicleId) {
+            return res.status(400).json({ error: "Vehicle ID is required" });
         }
         // Check if the vehicle exists
         const vehicle = await Vehicle.findById(vehicleId);
         if (!vehicle) {
             return res.status(404).json({ error: "Vehicle not found" });
         }
+        // Check if the vehicle belongs to the authenticated user
+        if (vehicle.userId.toString() !== req.user.id) {
+            return res.status(403).json({ error: "You do not have permission to update this vehicle" });
+        }
 
-        const updatedVehicle = await Vehicle.findByIdAndUpdate(vehicleId, {
-            vechicleType,
-            model,
-            registrationNumber,
-            fuelType,
-            yearOfManufacture
-        }, { new: true });
+        // Update the vehicle
+        const updatedVehicle = await Vehicle.findByIdAndUpdate(
+            vehicleId,
+            {$set: updateFields},
+            { new: true }
+        );
 
-        if (!updatedVehicle) {
+        if(!updatedVehicle) {
             return res.status(404).json({ error: "Vehicle not found" });
         }
 
         return res.status(200).json({ message: "Vehicle updated successfully", vehicle: updatedVehicle });
+
     } catch (error) {
         return res.status(500).json({ error: error.message });
     }
