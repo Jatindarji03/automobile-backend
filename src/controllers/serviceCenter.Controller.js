@@ -1,7 +1,6 @@
-import mongoose from "mongoose";
 import ServiceCenter from "../models/serviceCenterModel.js";
 import Mechanical from "../models/mechanicalModel.js";
-import User from "../models/userModel.js";
+import getCoordinates from "../utils/getCordinates.js";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
 const generateToken = (servicecenter) => {
@@ -24,15 +23,19 @@ const registerServiceCenter = async (req, res) => {
     if (existingServiceCenter) {
       return res.status(409).json({ error: "Service center with this email already exists." });
     }
-    // Create a new service center
-
+    // get coordinates from the location
+    const coordinates = await getCoordinates(location);
+    if (!coordinates) {
+      return res.status(400).json({ error: "Invalid location coordinates." });
+    }
+    // Hash the password
     const hashedPassword = await bcrypt.hash(password, 10);
 
     const newServiceCenter = await ServiceCenter.create({
       name,
       location: {
         type: "Point",
-        coordinates,
+        coordinates:coordinates,
       },
       owner,
       email,
@@ -56,7 +59,7 @@ const registerServiceCenter = async (req, res) => {
     // Save the new service center
     await newServiceCenter.save();
     // Success response
-    return res.status(201).cookie(authtoken, token, options).json({
+    return res.status(201).cookie("authtoken", token, options).json({
       message: "Service center registered successfully",
       serviceCenter: newServiceCenter,
     });
@@ -89,7 +92,7 @@ const registerServiceCenter = async (req, res) => {
       sameSite: "strict", // Adjust as needed
     };
     // Save the token in a cookie
-    return res.status(200).cookie(authtoken, token, options).json({ token, serviceCenter, success: "login successful" });
+    return res.status(200).cookie("authtoken", token, options).json({ token, serviceCenter, success: "login successful" });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
