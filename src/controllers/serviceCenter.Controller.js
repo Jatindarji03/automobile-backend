@@ -251,8 +251,108 @@ const getallmechanics = async (req, res) => {
 // get all service centers
 // view service center profile
 
+//Search service center by name
+const getServiceCenterByName = async (req, res) => {
+  try{
+    const serviceCenterName = req.params.serviceCenterName;
+    if (!serviceCenterName) {
+      return res.status(400).json({ error: "Service center name is required." });
+    }
+
+    // Find service center by name
+    const serviceCenters = await ServiceCenter.find({ name: new RegExp(serviceCenterName, 'i') });
+    
+    if(serviceCenters.length === 0) {
+      return res.status(404).json({ error: "No service center found with this name." });
+    }
+
+    // Return the service center details
+    return res.status(200).json({
+      message: "Service center found",
+      serviceCenter: serviceCenters,
+    });
+
+  }catch(error){
+    return res.status(500).json({ error: error.message });
+  }
+};
+
+//View Service Center Profile
+const viewServiceCenterProfile=async (req, res) => {
+  try{
+    const serviceCenterId = req.params.serviceCenterId; // Assuming the service center ID is passed in the URL
+    if (!serviceCenterId) {
+      return res.status(400).json({ error: "Service center ID is required." });
+    }
+    // Check if the service center exists
+    const serviceCenter = await ServiceCenter.findById(serviceCenterId);
+
+    if (!serviceCenter) {
+      return res.status(404).json({ error: "Service center not found." });
+    }
+    // Return the service center profile
+    return res.status(200).json({
+      message: "Service center profile retrieved successfully",
+      serviceCenter: serviceCenter,
+    });
+
+  }catch(error){
+    return res.status(500).json({ error: error.message });
+  }
+};
+
+//get all service centers
+const getAllServiceCenters=async (req, res) => {
+  try{
+    const serviceCenters=await ServiceCenter.find();
+    if (!serviceCenters || serviceCenters.length === 0) {
+      return res.status(404).json({ error: "No service centers found." });
+    }
+    // Return the list of service centers
+    return res.status(200).json({
+      message: "Service centers retrieved successfully",
+      serviceCenters: serviceCenters,
+    });
+
+  }catch(error){
+    return res.status(500).json({ error: error.message });
+  }
+}
+
+//get Nearby service centers
+// This function can be implemented using geospatial queries in MongoDB Nearby 5km
+const getNeartbyServiceCenters = async (req, res) => {
+  try{
+    const { latitude, longitude } = req.query; // Assuming latitude, longitude, and radius are passed as query parameters
+    if (!latitude || !longitude ) {
+      return res.status(400).json({ error: "Latitude and longitude are required." });
+    }
+    // Find nearby service centers using geospatial queries
+    const nearbyServiceCenters = await ServiceCenter.find({
+      location: {
+        $near: {
+          $geometry: {
+            type: "Point",
+            coordinates: [parseFloat(longitude), parseFloat(latitude)],
+          },
+          $maxDistance: parseFloat(5) * 1000, // Convert radius to meters
+        },
+      },
+    });
+
+    if (nearbyServiceCenters.length === 0) {
+      return res.status(404).json({ error: "No nearby service centers found." });
+    }
+
+    // Return the list of nearby service centers
+    return res.status(200).json({
+      message: "Nearby service centers retrieved successfully",
+      serviceCenters: nearbyServiceCenters,
+    });
+  }catch(error){
+    return res.status(500).json({ error: error.message });
+  }
+}
 
 
-
-
-export { addMechanicToServiceCenter, getallmechanics, loginServiceCenter, registerServiceCenter, updateServiceCenter, RemoveMechanicFromServiceCenter };
+export { addMechanicToServiceCenter, getallmechanics, loginServiceCenter, registerServiceCenter, updateServiceCenter, RemoveMechanicFromServiceCenter , getServiceCenterByName,viewServiceCenterProfile,getAllServiceCenters,getNeartbyServiceCenters};
