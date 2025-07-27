@@ -4,6 +4,7 @@ import http from 'http';
 
 const app = express();
 const server = http.createServer(app);
+const connectedUsers = new Map(); // To keep track of connected users
 const io = new Server(server, {
   cors: {
     origin: '*', // Allow all origins for simplicity; adjust as needed
@@ -14,17 +15,36 @@ const io = new Server(server, {
 io.on('connection', (socket) => {
   console.log('A user connected:', socket.id);
 
-  // Handle disconnection
+  // Listen for user registration
+  socket.on('register', (userId) => {
+    connectedUsers.set(userId, socket.id);
+    console.log(`User ${userId} registered with socket ID ${socket.id}`);
+  });
+
+  // Handle disconnect
   socket.on('disconnect', () => {
+    for (const [userId, sockId] of connectedUsers.entries()) {
+      if (sockId === socket.id) {
+        connectedUsers.delete(userId);
+        break;
+      }
+    }
     console.log('User disconnected:', socket.id);
   });
 
-  // Example of handling a custom event
-  socket.on('message', (data) => {
-    console.log('Message received:', data);
-    // Broadcast the message to all connected clients
-    io.emit('message', data);
+  // Send alert from sender to receiver
+  socket.on('send_alert', ({ senderId, receiverId, message }) => {
+    const targetSocketId = connectedUsers.get(receiverId);
+    if (targetSocketId) {
+      io.to(targetSocketId).emit('receive_alert', {
+        from: senderId,
+        message,
+      });
+    } else {
+      console.log(`User ${receiverId} not connected`);
+    }
   });
 });
+
 
 export {app, server, io};
