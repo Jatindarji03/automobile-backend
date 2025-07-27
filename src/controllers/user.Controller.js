@@ -174,6 +174,19 @@ const updatePassword = async (req, res) => {
   }
 };
 
+
+const getallusers = async (req, res) => {
+  try {
+    const users = await User.find().select("-password -__v");
+    if (!users || users.length === 0) {
+      return res.status(404).json({ message: "No users found" });
+    }
+    return res.status(200).json({ users });
+  } catch (error) {
+    return res.status(500).json({ error: error.message });
+  }
+};
+
 // book the service
 
 
@@ -183,4 +196,4 @@ const updatePassword = async (req, res) => {
 
 
 
-export { registerUser, userLogin, Profile ,updateUserProfile,updatePassword};
+export { registerUser, userLogin, Profile ,updateUserProfile,updatePassword,getallusers};
