@@ -3,7 +3,13 @@ import Product from "../models/productModel.js";
 const addProduct = async (req, res) => {
     try {
         const { productName, productPrice, productyQty, productDescription, category } = req.body;
-
+        const image = req.file?.filename;
+        if (image) {
+            req.body.productImage = image; // Add the image filename to the request body
+        } else {
+            return res.status(400).json({ message: "Image is required" });
+            req.body.productImage = null; // If no image is uploaded, set it to null
+        }
         // Validate required fields
         if (!productName || !productPrice || !productyQty || !productDescription || !category) {
             return res.status(400).json({ message: "All fields are required" });
@@ -22,6 +28,7 @@ const addProduct = async (req, res) => {
             productyQty: productyQty,
             productDescription: productDescription,
             category: category,
+            productImage: req.body.productImage,
             shop: req.user.id
         });
         if (!newProduct) {
@@ -58,7 +65,11 @@ const deleteProduct = async (req, res) => {
         if (!productId) {
             return res.status(400).json({ message: "Product ID is required" });
         }
-        await Product.findByIdAndDelete(productId);
+        const productdelete=await Product.findByIdAndDelete(productId);
+        if(productdelete==null){
+            return res.status(404).json({ message: "Product not found" });
+        }
+        // If the product is successfully deleted, return a success message
         return res.status(200).json({ message: "Product deleted successfully" });
 
     } catch (error) {

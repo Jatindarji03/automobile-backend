@@ -3,10 +3,11 @@ import cors from "cors";
 import connectDB from "./src/db/dbConnection.js";
 import express from "express";
 import cookieParser from "cookie-parser";
-import { app, server, io } from "./src/Socket/socket.js";
+import { app, server } from "./src/Socket/socket.js";
 dotenv.config();
 app.use(express.json());
 app.use(cookieParser());
+app.use(express.static("public/uploads")); // Serve static files from the uploads directory
 
 // app.use(cors({
 //   origin: ["http://localhost:5174", "http://localhost:5173"], // ✅ Array of allowed origins
