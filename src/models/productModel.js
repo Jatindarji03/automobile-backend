@@ -23,6 +23,10 @@ const productSchema = new mongoose.Schema({
     brand: { // Brand of the product
         type: String,
     },
+    
+    carBrand: {type:String},     // e.g., "Maruti", "Hyundai"
+    carModel: {type:String},     // e.g., "Swift", "i20"
+       // e.g., "Brake System", "Filters"
     category: { // Category of the product
         type: mongoose.Schema.Types.ObjectId,
         ref: "Category",

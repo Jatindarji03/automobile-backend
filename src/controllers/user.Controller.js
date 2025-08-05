@@ -2,7 +2,7 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import User from "../models/userModel.js";
 // Function to generate JWT token
-
+import sendMail from "../utils/sendMail.js";
 const generateToken = (user) => {
   const SECRET = process.env.JWT_SECRET;
   console.log(process.env.JWT_SECRET);
@@ -43,6 +43,15 @@ const registerUser = async (req, res) => {
     if (!token) {
       return res.status(500).json({ error: "Failed to generate token" });
     }
+     // ✅ Send email after registration
+    const subject = "Registration Successful";
+    const message = `Hello ${name}, your registration was successful!`;
+
+    console.log("Calling sendMail with:", email, subject, message); // debug log
+    await sendMail(email, subject, message); // make sure these args are correct
+    // console.log(`Email sent to ${email}:`, emailStatus);
+    
+
     return res.cookie("authtoken", token, options).status(200).json({
       data: newUser, message: "user registered successful"
     });

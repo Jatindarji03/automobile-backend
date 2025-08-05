@@ -1,11 +1,12 @@
 import { Router } from "express";
 import { addProduct,getProducts,deleteProduct,updateProduct} from "../controllers/product.Controller.js";
 import AuthMiddleware from "../middleware/authMiddleware.js";
+import multers from "../middleware/multers.js";
 
 const router = Router();
 
 // Route to add a new product
-router.route('/add-product').post(AuthMiddleware,addProduct);
+router.route('/add-product').post(AuthMiddleware,multers.single('image'),addProduct);
 
 //Route to get products by shop
 router.route('/get-products').get(AuthMiddleware, getProducts);
